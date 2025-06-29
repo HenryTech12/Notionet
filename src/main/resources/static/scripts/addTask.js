@@ -7,14 +7,7 @@ categories.forEach(data => {
     buttons.value = data;
     buttons.onclick = 'chooseCategory(event)'
     buttons.innerText = data;
-    buttons.classList.add('bg-gray-200')
-    buttons.classList.add('w-fit')
-    buttons.classList.add('h-auto')
-    buttons.classList.add('cBtn')
-    buttons.classList.add('hover:bg-purple-500')
-    buttons.classList.add('rounded-2xl')
-    buttons.classList.add('p-2')
-    buttons.classList.add('cursor-pointer')
+    buttons.classList.add('bg-gray-200','w-fit', 'h-auto', 'cBtn', 'hover:bg-purple-500','cursor-pointer', 'rounded-2xl', 'p-2');
     listOfCategory.appendChild(buttons)
 });
 
@@ -24,13 +17,12 @@ let displayCategory = document.getElementById('displayCategory')
 let chosenField = document.getElementById('chosenCategory');
 if(categoriesBtn) {
     categoriesBtn.forEach((category) => {
-        category.addEventListener('click', () => {
-            if(!chosenField.value) {
+        category.addEventListener('click', (event) => {
+            event.preventDefault();
                 chosenField.value = category.innerText;
                 displayCategory.innerText = category.innerText;
                 displayCategory.setAttribute('style', 'font-family: Work Sans')
                 chosenField.innerText = category.innerText;
-            }
         });
     })
 }

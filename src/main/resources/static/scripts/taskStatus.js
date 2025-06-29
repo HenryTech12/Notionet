@@ -17,8 +17,10 @@ function connect() {
             console.log(response.message)
             const field = document.createElement('span');
             field.innerText = response.message;
+            field.classList.add('fields','border', 'w-full', 'h-auto', 'text-center');
             notifBox.appendChild(field);
             notifDot.classList.remove('hidden'); // Hide red dot on view
+
         })
     })
 }
@@ -44,4 +46,5 @@ bellBtn.addEventListener('click', (event) => {
   event.preventDefault();
   notifBox.classList.toggle('hidden');
   notifDot.classList.add('hidden'); // Hide red dot on view
+
 });

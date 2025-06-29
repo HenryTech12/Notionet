@@ -67,6 +67,10 @@ public class MyTaskService {
         TaskModel taskModel = taskRepository.findById(id).orElse(new TaskModel());
         TaskModel newTaskModel = taskMapper.convertToModel(myTask);
         newTaskModel.setId(taskModel.getId());
+        newTaskModel.setStatus(taskModel.getStatus());
+        newTaskModel.setCreatedOn(LocalDate.now());
+        newTaskModel.setCreatedWhen(LocalTime.now());
+        
         taskRepository.save(newTaskModel);
 
         log.info("updated task details");

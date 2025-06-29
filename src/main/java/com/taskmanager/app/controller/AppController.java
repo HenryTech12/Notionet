@@ -91,7 +91,14 @@ public class AppController {
         model.addAttribute("task", myTaskService.getTask(id));
         model.addAttribute("projects", myProjectService.getAllProjects());
         model.addAttribute("project", new MyProject());
+        model.addAttribute("taskID",id);
         return "addTask";
+    }
+
+    @PostMapping("/task/update/{id}")
+    public RedirectView updateTask(@PathVariable Long id, @ModelAttribute MyTask task) {
+        myTaskService.updateTask(id,task);
+        return new RedirectView("/app/tasks");
     }
 
     @PostMapping("/project/create")

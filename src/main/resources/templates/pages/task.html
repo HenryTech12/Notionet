@@ -12,8 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link th:href="@{/css/output.css}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
 </head>
 <body>
     <main class="container my-4 mx-auto">
@@ -40,7 +40,7 @@
                          </button>
 
                          <!-- One-line notification -->
-                         <div id="notif-box" class="absolute right-0 mt-2 w-72 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded shadow hidden z-50 flex flex-col">
+                         <div id="notif-box" class="flex gap-3 justify-center items-center flex-col absolute right-0 mt-2 w-72 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded shadow hidden z-50 flex flex-col">
                              <span>🔔 New update available!</span>
                          </div>
                      </div>
@@ -85,10 +85,10 @@
                                 <button class="bg-orange-500 px-3 rounded-2xl w-fit">
                                     <span class="text-white font-bold" th:text="${task.status}" style="font-family: Open Sans">Status</span>
                                 </button>
-                                <button class="bg-red-500 px-3 rounded-2xl font-bold w-fit">
+                                <!--<button class="bg-red-500 px-3 rounded-2xl font-bold w-fit">
                                     <span th:text="${taskStat.index + 1}" hidden id="delIndex"></span>
                                     <span class="text-white" onclick="showDeletePopup(event)" style="font-family: Open Sans">Delete</span>
-                                </button>
+                                </button>-->
                             </section>
                         </div>
                     </div>
