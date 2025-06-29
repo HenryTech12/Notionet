@@ -1,0 +1,153 @@
+<html lang="en"
+    xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager | Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="./output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="container mx-auto px-4 flex flex-col">
+        <form>
+            <nav class="flex mt-2 -mb-3 items-center p-4 justify-between bg-transparent w-full h-10">
+                <button onclick="showNavBar(event)">
+                    <span class="menuIcon material-symbols-outlined text-4xl block">
+                        menu
+                    </span>
+                </button>
+    
+                <button class="bg-purple-500 block rounded-full text-white w-10 h-10">
+                    <span class="material-symbols-outlined text-3xl block">
+                        account_circle
+                    </span>
+                </button>
+            </nav>
+    
+             <!--NAV BAR-->
+             <div class="navBar w-80 border mx-5 mt-5" style="display: none;">
+                <img width="50" height="50" class="rounded-2xl border mx-auto my-4">
+                <section>
+                    <span class="mt-5 block text-center" style="font-family:Roboto">Project <span th:text="${projectName}"></span></span>
+                </section>
+                <section class="w-full px-3">
+                    <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family:Open Sans" th:formaction="@{/app/dashboard}">Dashboard</button>
+                    <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family:Open Sans" th:formaction="@{/app/task}">Create Tasks</button>
+                    <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family:Open Sans" th:formaction="@{/app/project}">Create Project</button>
+                </section>
+            </div>
+    
+            <div class="content m-2">
+                <div class="user-greetings flex flex-col mt-7 mb-7">
+                    <span style="font-family:Inter">Hello, <span class="font-bold" style="font-family:Inter">User</span></span>
+                    <span class="greetings font-light text-amber-200">Have a nice day!</span>
+                </div>
+    
+                <div class="cards">
+                    <div class="card-tab flex flex-row items-start gap-5">
+                        <button class="bg-red-50 w-30 px-3 h-10 text-center rounded-3xl hover:bg-red-400 shadow-gray">
+                            <span class="font-bold" style="font-family:Work Sans">My tasks</span>
+                        </button>
+                        <button class="w-30 h-10 text-center px-3 bg-red-300 rounded-3xl hover:bg-red-500 shadow-gray" th:formaction="@{/app/dashboard}">
+                            <span class="font-bold" style="font-family:Work Sans">Project</span>
+                        </button>
+                        <button class="bg-red-50 w-30 h-10 text-center px-3 rounded-3xl hover:bg-red-400 shadow-gray">
+                            <span class="font-bold" style="font-family:Work Sans">Pendings</span>
+                        </button>
+                    </div>
+    
+                    <div class="card-list grid grid-cols-[repeat(auto-fit,_minmax(200px,200px))] justify-start gap-4 my-4">
+                        <div th:each="data, dataStat: ${projects}" class="card-1 w-fit bg-purple-500 min-h-56 rounded-2xl shadow-2xl p-2 my-1 transform hover:scale-105 hover:bg-purple-700 transition duration-300 ease-in-out cursor-pointer">
+                            <span class="projectId" hidden th:text="${dataStat.index + 1}"></span>
+                            <section class="header flex flex-col items-center gap-1">
+                                <button class="bg-purple-700 block text-white rounded-full w-20 h-20">
+                                    <span class="material-symbols-outlined truncate block font-bold text-3xl">
+                                        account_circle
+                                    </span> 
+                                </button>
+                                <span class="text-white mt-3 text-2xl block" th:text="${data.projectName}" style="font-family: Source Code Pro"></span>
+                            </section>
+        
+                            <section class="card-info mt-10 flex flex-col">
+                                <span class="block text-gray-500 text-56" th:text="${data.task} == null ? 'No Title' : ${data.task.title}" style="font-family: Open Sans"></span>
+                                <span class="block text-gray-300 mt-5" th:text="${data.createdOn}" id="card-date" style="font-family: Roboto">Apr 3</span>
+                            </section>
+                        </div>
+                    </div>
+    
+                    <div class="progress">
+                        <header>
+                            <span class="font-bold text-2xl" style="font-family: Roboto">Progress</span>
+                        </header>
+    
+                        <section class="projects-card">
+                            <div th:each="data, dataStat: ${projects}" class="pcard border-black border-l-purple-400 justify-between pr-3 pl-3 border flex gap-10 items-center w-full m-3 shadow-orange-50">
+                                <section class="flex items-center justify-between gap-5 w-full">
+                                    <span class="material-symbols-outlined w-fit rounded-full bg-purple-600 p-1">
+                                        event_note
+                                    </span>
+
+                                    <section class="flex flex-col">
+                                        <span class="font-bold" th:text="${data.projectName}" style="font-family: Open Sans"></span>
+                                        <span class="text-gray-400" th:text="${data.status}" style="font-family: Work Sans">3 days ago</span>
+                                    </section>
+        
+                                    <button class="flex bg-transparent vertI">
+                                        <span class="material-symbols-outlined text-gray-400">
+                                            more_vert
+                                        </span>
+                                    </button>
+    
+                                    <section class="gap-3 crud" style="display: none;">
+                                        <button class="w-fit bg-yellow-200 rounded-full p-1 editProject">
+                                            <span class="material-symbols-outlined">
+                                                edit
+                                            </span>
+                                        </button>
+                                        <button class="w-fit bg-red-600 rounded-full p-1" onclick="showDeletePopup(event)">
+                                            <span class="material-symbols-outlined">
+                                                delete
+                                            </span>
+                                        </button>
+                                        <button class="w-fit bg-green-600 rounded-full p-1" onclick="closeCrud(event)">
+                                            <span class="material-symbols-outlined">
+                                                cancel
+                                            </span>
+                                        </button>
+                                    </section>
+                                </section>
+                                
+                            </div>
+                        </section>
+                    </div>
+    
+                </div>
+            </div>
+    
+            <div class="del-popup shadow-2xl h-40 border rounded-3xl top-64 absolute left-0 right-0 mx-5 bg-gray-700" style="display: none;">
+                <header class="flex items-center flex-col justify-center h-full">
+                    <h2 class="text-center text-white my-5">Are you sure you want to delete project?</h2>
+                    <section class="flex gap-6">
+                            <button class="bg-purple-400 w-36 h-auto" th:formaction="@{/app/project/delete(name=${projectName})}">OK</button>
+                            <button class="bg-purple-300 w-36 h-auto" onclick="closeDeletePopup(event)">CANCEL</button>
+                    </section>
+                </header>
+            </div>
+        </form>
+    </main>
+    <script th:src="@{/scripts/main.js}"></script>
+</body>
+</html>

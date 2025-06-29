@@ -1,0 +1,92 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing:border-box;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <main class="container mx-auto border">
+        <form th:object="${task}" th:action="@{/app/task/create}" method="post">
+            <div class="content w-full">
+                <section class="header bg-purple-800 min-h-56 text-center rounded">
+                    <header>
+                        <span class="text-gray-200 pt-3 block" style="font-family: Inter">Create New Task</span>
+                    </header>
+
+                    <section class="inputs flex flex-col gap-3 m-3">
+                        <input type="text" th:field="*{title}" placeholder="Title" class="w-full outline-none h-10 p-1 bg-transparent border-b ">
+                        <section class="flex flex-col items-start justify-start w-fit mt-4">
+                            <label class="font-bold text-white" style="font-family: Open Sans">Scheduled On</label>
+                            <input style="font-family: Work Sans" type="date" th:field="*{scheduledDate}" class="w-full outline-none h-10 p-1 border-b bg-transparent">
+                        </section>
+                    </section>
+                </section>
+                <section class="info mx-5 flex flex-col justify-center">
+                    <div class="info-input w-full mt-8 flex flex-col items-center justify-evenly gap-4">
+
+                        <section class="flex flex-col mt-3 justify-start items-start">
+                            <label class="text-gray-400" style="font-family: Inter">Choose Project Area</label>
+                            <div th:unless="${#lists.isEmpty(projects)}" class="w-full">
+                                <select th:field="*{projectName}" class="w-56 flex flex-col gap-3 border-purple-300 border">
+                                    <option style="font-family: Inter" th:value="${project.projectName}" th:each="project : ${projects}" th:text="${project.projectName}" ></option>
+                                </select>
+                            </div>
+                            <div th:if="${#lists.isEmpty(projects)}">
+                                <button class="bg-purple-500 mt-4 p-2 rounded font-bold" th:formaction="@{/app/project}">Create Project</button>
+                            </div>
+                        </section>
+
+                        <div class="flex flex-row w-full items-center gap-4">
+                            <section class="flex flex-col mt-3 w-full">
+                                <label class="text-gray-400" style="font-family: Roboto"> Start Time</label>
+                                <input type="time" style="font-family: Inter" th:field="*{startTime}" class="outline-none mt-2 border-b border-black">
+                            </section>
+                            <section class="flex flex-col mt-3 w-full">
+                                <label class="text-gray-400" style="font-family: Roboto">End Time</label>
+                                <input type="time" style="font-family: Inter" th:field="*{endTime}" class="outline-none mt-2 border-b border-black">
+                            </section>
+                        </div>
+                    </div>
+
+                    <input type="text" style="font-family: Inter" th:field="*{description}" placeholder="Description" class="outline-none pb-7 h-10 border-b mt-12 border-black w-full">
+                </section>
+
+                <section class="category mx-5 mt-5">
+                    <header class="mb-7">
+                        <span class="font-bold text-2xl" style="font-family: Inter">Category</span>
+                    </header>
+
+                    <div class="categories ml-5 grid grid-cols-3 gap-5 justify-center" style="font-family: Work Sans">
+
+                    </div>
+                </section>
+
+                <section class="mycategory flex items-center justify-center text-center mt-8 w-fit h-auto px-2 rounded-full mx-auto border border-amber-500">
+                    <input id="chosenCategory" style="font-family: Roboto" th:field="*{category}" class="border-0 outline-none bg-transparent p-0 m-0 inline text-inherit w-0 min-w-0">
+                    <span id="displayCategory"></span>
+                    <span class="material-symbols-outlined text-gray-400 cursor-pointer" onclick="removeCategory(event)">
+                    close</span>
+                </section>
+
+                <button class="w-56 h-10 mb-10 bg-purple-500 rounded-2xl mx-auto block text-white mt-20">Create Task</button>
+            </div>
+
+        </form>
+    </main>
+    <script th:src="@{/scripts/addTask.js}"></script>
+</body>
+</html>

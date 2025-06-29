@@ -1,0 +1,28 @@
+<html lang="en"
+    xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <main class="container mx-auto my-36">
+       <form th:object="${project}" method="post">
+            <header class="flex flex-col items-center">
+                <span class="font-bold" style="font-family: Source Code Pro">Create Your Project</span>
+                <span class="font-light" style="font-family: Work Sans">Enjoy your tasks</span>
+            </header>
+            <section class="flex justify-center mt-5">
+                <input th:field="*{projectName}" type="text" style="font-family: Roboto" placeholder="Project Name" class="border pl-2">
+                <button type="submit" class="bg-purple-500 p-2 rounded font-bold" th:formaction="@{/app/project/create}">Create</button>
+            </section>
+       </form>
+    </main>
+</body>
+</html>

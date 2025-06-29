@@ -1,0 +1,112 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <main class="container my-4 mx-auto">
+        <form>
+            <nav class="flex mt-2 mb-3 p-4 justify-between bg-transparent w-full h-10">
+                <button onclick="showNavBar(event)">
+                <span class="material-symbols-outlined text-4xl block menuIcon">
+                    menu
+                </span>
+                </button>
+
+                 <section class="flex gap-3 items-baseline">
+                     <div class="relative inline-block">
+                         <!-- Bell Icon -->
+                         <button id="bell-btn" class="relative text-gray-700 focus:outline-none">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                 <path stroke-linecap="round" stroke-linejoin="round"
+                                       d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                             </svg>
+
+                             <!-- Red dot for unread -->
+                             <span id="notif-dot" class="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full"></span>
+                         </button>
+
+                         <!-- One-line notification -->
+                         <div id="notif-box" class="absolute right-0 mt-2 w-72 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded shadow hidden z-50 flex flex-col">
+                             <span>🔔 New update available!</span>
+                         </div>
+                     </div>
+
+                     <button class="bg-purple-500 block rounded-full text-white w-10 h-10">
+                        <span class="material-symbols-outlined text-3xl block">
+                            account_circle
+                        </span>
+                     </button>
+                 </section>
+            </nav>
+
+            <!--NAV BAR-->
+            <div class="navBar w-80 border mx-5" style="display: none;">
+                <img width="50" height="50" class="rounded-2xl border mx-auto my-4">
+                <section>
+                    <span class="mt-5 block text-center" style="font-family: Roboto">Project Name <span style="font-family: Roboto" th:text="${projectName}"></span></span>
+                </section>
+                <section class="w-full px-3">
+                    <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family: Roboto" th:formaction="@{/app/dashboard}">Dashboard</button>
+                    <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family: Roboto" th:formaction="@{/app/task}">Create Tasks</button>
+                    <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family: Roboto" th:formaction="@{/app/project}">Create Project</button>
+                </section>
+            </div>
+
+            <div class="content mx-5">
+
+                <section>
+                    <section class="grid grid-cols-2 items-center justify-center">
+                        <h2 class="font-bold mt-6" style="font-family: Work Sans">Tasks (<span class="pName" th:text="${projectName}" style="font-family: Open Sans"></span>)</h2>
+                    </section>
+                    <div th:each="task, taskStat : ${tasks}" class="grid grid-cols-2 grid-rows-1 border w-fit py-2 mx-2 px-3 rounded-2xl mt-4">
+                        <div class="flex flex-col gap-3 items-center">
+                            <section>
+                                <span class="font-light" style="font-family: Source Code Pro" th:text="${task.title}"></span>
+                            </section>
+
+                            <section class="align-bottom flex gap-4 my-3 w-full px-3">
+                                <button class="bg-blue-500 px-3 rounded-2xl w-fit" th:formaction="@{/app/task/viewEdit/{id}(id=${taskStat.index + 1})}">
+                                    <span class="text-white font-bold" style="font-family: Open Sans">View</span>
+                                </button>
+                                <button class="bg-orange-500 px-3 rounded-2xl w-fit">
+                                    <span class="text-white font-bold" th:text="${task.status}" style="font-family: Open Sans">Status</span>
+                                </button>
+                                <button class="bg-red-500 px-3 rounded-2xl font-bold w-fit">
+                                    <span th:text="${taskStat.index + 1}" hidden id="delIndex"></span>
+                                    <span class="text-white" onclick="showDeletePopup(event)" style="font-family: Open Sans">Delete</span>
+                                </button>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="del-popup shadow-2xl h-40 border rounded-3xl top-64 absolute left-0 right-0 mx-5 bg-gray-700" style="display: none;">
+                <header class="flex items-center flex-col justify-center h-full">
+                    <h2 class="text-center text-white my-5" style="font-family: Source Code Pro">Are you sure you want to delete task?</h2>
+                    <section class="flex gap-6">
+                        <button class="bg-purple-400 w-36 h-auto" style="font-family: Roboto">OK</button>
+                        <button class="bg-purple-300 w-36 h-auto" style="font-family: Roboto" onclick="closeDeletePopup(event)">CANCEL</button>
+                    </section>
+                </header>
+            </div>
+        </form>
+    </main>
+    <script th:src="@{/scripts/notify.js}"></script>
+    <script th:src="@{/scripts/task.js}"></script>
+    <script th:src="@{/scripts/taskStatus.js}"></script>
+</body>
+</html>
