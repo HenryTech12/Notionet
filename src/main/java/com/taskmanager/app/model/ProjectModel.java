@@ -17,6 +17,6 @@ public class ProjectModel {
     private String projectName;
     private Date createdOn;
     private String status; // days project existed
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<TaskModel> taskModelList;
 }

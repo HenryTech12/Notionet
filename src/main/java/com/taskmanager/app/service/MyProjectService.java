@@ -97,34 +97,38 @@ public class MyProjectService {
 
     public NotificationResponse updateTaskExpiration(String projectName) {
         NotificationResponse notificationResponse = new NotificationResponse();
+        System.out.println(projectName);
         ProjectModel projectModel
                 = projectRepository.findByProjectName(projectName).orElse(new ProjectModel());
         List<TaskModel> taskModels = projectModel.getTaskModelList();
-        taskModels.stream()
-                .map((data) -> {
-                     LocalDate currentDate = LocalDate.now();
-                     LocalDate taskExpectedDate = LocalDate.parse(data.getScheduledDate());
 
-                     if(currentDate.equals(taskExpectedDate)) {
-                         LocalTime currentTime = LocalTime.now();
-                         LocalTime taskStartTime = LocalTime.parse(data.getStartTime());
-                         LocalTime taskEndTime = LocalTime.parse(data.getEndTime());
+        for (TaskModel data : taskModels) {
+            LocalDate currentDate = LocalDate.now();
+            //CONVERT STRING DATE TO LOCAL DATE
+            LocalDate taskExpectedDate = LocalDate.parse(data.getScheduledDate());
+            System.out.println(taskExpectedDate);
 
-                         if(currentTime.equals(taskStartTime) || currentTime.isAfter(taskStartTime)) {
-                                notificationResponse.setMessage(
-                                        "The Timer for Task : "+data.getTitle()+" has reached");
+            if (currentDate.equals(taskExpectedDate)) {
+                LocalTime currentTime = LocalTime.now();
+                LocalTime taskStartTime = LocalTime.parse(data.getStartTime());
+                LocalTime taskEndTime = LocalTime.parse(data.getEndTime());
 
-                         }
-                         if(currentTime.isAfter(taskEndTime)) {
-                                notificationResponse.setMessage(
-                                        "The Task : "+data.getTitle()+ " has ended."
-                                );
-                                data.setStatus(TaskStatus.COMPLETED.name());
-                                taskRepository.save(data); //updated status
-                         }
-                     }
-                    return data;
-                });
+                /* CHECK TIME AND SET NOTIFICATION MESSAGE*/
+                if (currentTime.equals(taskStartTime) || currentTime.isAfter(taskStartTime)) {
+                    notificationResponse.setMessage(
+                            "The Timer for Task : " + data.getTitle() + " has reached");
+
+                }
+                if (currentTime.isAfter(taskEndTime)) {
+                    notificationResponse.setMessage(
+                            "The Task : " + data.getTitle() + " has ended."
+                    );
+                    data.setStatus(TaskStatus.COMPLETED.name());
+                    taskRepository.save(data); //updated status
+                }
+
+            }
+        }
         return notificationResponse;
     }
 
