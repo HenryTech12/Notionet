@@ -31,7 +31,10 @@ public class NotificationController {
     @MessageMapping("/update")
     @SendTo("/topics/uproject")
     public String notifyProject(@RequestBody MyProject myProject, OAuth2AuthenticationToken token) {
-        myProjectService.checkForStatus(myProject.getProjectName());
+        myProjectService.checkForStatus(myProject.getProjectName(),
+                userService.findByEmail(userService.extractUserDetails(
+                        Objects.requireNonNull(token.getPrincipal().getAttribute("email"))
+                ).getEmail()));
         return "Updated";
     }
 

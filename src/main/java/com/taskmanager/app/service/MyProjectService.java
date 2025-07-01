@@ -2,6 +2,7 @@ package com.taskmanager.app.service;
 
 
 import com.taskmanager.app.dto.MyProject;
+import com.taskmanager.app.dto.UserData;
 import com.taskmanager.app.mapper.ProjectMapper;
 import com.taskmanager.app.model.ProjectModel;
 import com.taskmanager.app.model.TaskModel;
@@ -71,8 +72,11 @@ public class MyProjectService {
         log.info("project removed from db.");
     }
 
-    public NotificationResponse checkForStatus(String projectName) {
+    public NotificationResponse checkForStatus(String projectName, UserData userData) {
         NotificationResponse notificationResponse = new NotificationResponse();
+        MailService.MailInfo mailInfo = new MailService.MailInfo();
+        mailInfo.setTo(userData.getEmail());
+        mailInfo.setSubject("Notionet - Task Update (Notification)");
         ProjectModel projectModel = projectRepository.findByProjectName(projectName)
                 .orElse(new ProjectModel());
         List<TaskModel> taskModels =  projectModel.getTasks();
@@ -88,9 +92,24 @@ public class MyProjectService {
                LocalTime endTime = LocalTime.parse(taskModel.getEndTime());
 
                if(currentTime.isAfter(startTime) || currentTime.equals(startTime)) {
+                   mailInfo.setMessage(String.format("""
+                           Hey "%s",
+                           
+                           Just a quick update — your task "%s" has officially started!
+                           
+                           You can keep an eye on its progress in your project space.
+                           
+                           Cheers, \s
+                           The Notionet Team
+                           
+                           """,userData.getName(),taskModel.getTitle()));
                    notificationResponse.setMessage(Arrays.asList("The Task: "+taskModel.getTitle()+" has started"));
                }
                if(currentTime.isAfter(endTime) || currentTime.equals(endTime)) {
+                   mailInfo.setMessage(String.format(
+                           "Hi %s,\n\nYour task \"%s\" has ended successfully.\n\nYou can review the results or mark it as complete in your dashboard.\n\nBest regards,\nThe Notionet Team",
+                           userData.getName(), taskModel.getTitle()
+                   ));
                    notificationResponse.setMessage(Arrays.asList("The Task: "+taskModel.getTitle()+" has ended."));
                }
            }
