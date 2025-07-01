@@ -1,7 +1,4 @@
-markdown
-Copy
-Edit
-# 🗂️ Task Manager Web Application
+# 🗂️ Notionet
 
 A full-stack Task Manager web app that allows users to manage projects and task lists with real-time updates, secure login, and automated notifications.
 
