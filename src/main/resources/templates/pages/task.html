@@ -45,7 +45,7 @@
                          </div>
                      </div>
 
-                     <button class="bg-purple-500 block rounded-full text-white w-10 h-10">
+                     <button class="bg-purple-500 block rounded-full text-white w-10 h-10" th:formaction="@{/user/profile}">
                         <span class="material-symbols-outlined text-3xl block">
                             account_circle
                         </span>
@@ -57,7 +57,10 @@
             <div class="navBar w-80 border mx-5" style="display: none;">
                 <img width="50" height="50" class="rounded-2xl border mx-auto my-4">
                 <section>
-                    <span class="mt-5 block text-center" style="font-family: Roboto">Project Name <span style="font-family: Roboto" th:text="${projectName}"></span></span>
+                    <span class="mt-5 block text-center" style="font-family: Roboto">
+                        <span hidden style="display: none" class="pID" th:text="${projectId}"></span>
+                        <span style="font-family: Roboto" th:text="${projectName}" class="pName"></span>
+                    </span>
                 </section>
                 <section class="w-full px-3">
                     <button class="bg-purple-500 w-full my-2 rounded hover:bg-purple-400" style="font-family: Roboto" th:formaction="@{/app/dashboard}">Dashboard</button>
@@ -70,7 +73,7 @@
 
                 <section>
                     <section class="grid grid-cols-2 items-center justify-center">
-                        <h2 class="font-bold mt-6" style="font-family: Work Sans">Tasks (<span class="pName" th:text="${projectName}" style="font-family: Open Sans"></span>)</h2>
+                        <h2 class="font-bold mt-6" style="font-family: Work Sans">Tasks (<span style="font-family: Open Sans">ALL</span>)</h2>
                     </section>
                     <div th:each="task, taskStat : ${tasks}" class="grid grid-cols-2 grid-rows-1 border w-fit py-2 mx-2 px-3 rounded-2xl mt-4">
                         <div class="flex flex-col gap-3 items-center">
@@ -79,7 +82,7 @@
                             </section>
 
                             <section class="align-bottom flex gap-4 my-3 w-full px-3">
-                                <button class="bg-blue-500 px-3 rounded-2xl w-fit" th:formaction="@{/app/task/viewEdit/{id}(id=${taskStat.index + 1})}">
+                                <button class="bg-blue-500 px-3 rounded-2xl w-fit" th:formaction="@{/app/task/viewEdit/{id}(id=${task.id})}">
                                     <span class="text-white font-bold" style="font-family: Open Sans">View</span>
                                 </button>
                                 <button class="bg-orange-500 px-3 rounded-2xl w-fit">

@@ -30,7 +30,7 @@
                     </span>
                 </button>
     
-                <button class="bg-purple-500 block rounded-full text-white w-10 h-10">
+                <button class="bg-purple-500 block rounded-full text-white w-10 h-10" th:formaction="@{/user/profile}">
                     <span class="material-symbols-outlined text-3xl block">
                         account_circle
                     </span>
@@ -38,7 +38,7 @@
             </nav>
     
              <!--NAV BAR-->
-             <div class="navBar w-80 border mx-5 mt-5" style="display: none;">
+             <div class="rounded-2xl navBar w-80 border mx-5 mt-5" style="display: none;">
                 <img width="50" height="50" class="rounded-2xl border mx-auto my-4">
                 <section>
                     <span class="mt-5 block text-center" style="font-family:Roboto">Project <span th:text="${projectName}"></span></span>
@@ -58,7 +58,7 @@
     
                 <div class="cards">
                     <div class="card-tab flex flex-row items-start gap-5">
-                        <button class="bg-red-50 w-30 px-3 h-10 text-center rounded-3xl hover:bg-red-400 shadow-gray">
+                        <button class="bg-red-50 w-30 px-3 h-10 text-center rounded-3xl hover:bg-red-400 shadow-gray" th:formaction="@{/app/tasks}">
                             <span class="font-bold" style="font-family:Work Sans">My tasks</span>
                         </button>
                         <button class="w-30 h-10 text-center px-3 bg-red-300 rounded-3xl hover:bg-red-500 shadow-gray" th:formaction="@{/app/dashboard}">
@@ -71,12 +71,13 @@
     
                     <div class="card-list grid grid-cols-[repeat(auto-fit,_minmax(200px,200px))] justify-start gap-4 my-4">
                         <div th:each="data, dataStat: ${projects}" class="card-1 w-fit bg-purple-500 min-h-56 rounded-2xl shadow-2xl p-2 my-1 transform hover:scale-105 hover:bg-purple-700 transition duration-300 ease-in-out cursor-pointer">
-                            <span class="projectId" hidden th:text="${dataStat.index + 1}"></span>
-                            <section class="header flex flex-col items-center gap-1">
-                                <button class="bg-purple-700 block text-white rounded-full w-20 h-20">
-                                    <span class="material-symbols-outlined truncate block font-bold text-3xl">
+                            <span class="projectId" hidden th:text="${data.id}"></span>
+                            <section class="header flex flex-col items-center gap-1 h-auto">
+                                <button class="flex items-center justify-center bg-purple-700 block text-white rounded-full w-20 h-auto">
+                                   <!-- <span class="material-symbols-outlined truncate block font-bold text-3xl">
                                         account_circle
-                                    </span> 
+                                    </span>-->
+                                    <img class="w-15 h-auto" th:src="@{/app/project/image/{id}(id=${data.id})}">
                                 </button>
                                 <span class="text-white mt-3 text-2xl block" th:text="${data.projectName}" style="font-family: Source Code Pro"></span>
                             </section>

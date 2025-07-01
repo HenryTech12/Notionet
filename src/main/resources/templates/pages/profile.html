@@ -1,0 +1,63 @@
+<html lang="en"
+    xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<body>
+    <main class="container mx-auto relative">
+        <form th:object="${userData}">
+            <header>
+                <img class="w-100 h-80 mx-auto" th:src="@{/assets/bg.jpg}">
+                <section class="w-28 h-28 border rounded mx-auto absolute top-64 left-0 right-0">
+                    <img class="w-full h-full" th:src="*{picture}">
+                </section>
+            </header>
+
+            <div class="flex flex-col items-center justify-center gap-3 mt-16">
+                <section class="flex items-center gap-3">
+                    <button class="bg-emerald-50 border px-3 text-green-400 border-green-400 w-30 h-30 rounded-2xl">
+                        <span></span>
+                        <span>Member</span>
+                    </button>
+                    <span>Switch To <a>Premium</a></span>
+                </section>
+
+                <span>Member since <span th:text="*{joined}"></span></span>
+
+                <section class="personal-info flex flex-col items-center">
+                    <h2 class="font-bold text-2xl" th:text="*{name}"></h2>
+                    <span class="text-gray-500" th:text="*{email}"></span>
+                </section>
+
+                <section class="flex justify-evenly w-full">
+                    <section class="flex flex-col items-center justify-center">
+                    <span class="material-symbols-outlined font-bold">
+                        editor_choice
+                    </span>
+                        <h2 class="font-bold text-2xl" th:text="${taskSize}"></h2>
+                        <span class="text-gray-500 block">Total tasks</span>
+                    </section>
+
+                    <section class="flex flex-col items-center my-3">
+                    <span class="material-symbols-outlined font-bold">
+                        snippet_folder
+                    </span>
+                        <h2 class="font-bold text-2xl" th:text="${projectSize}"></h2>
+                        <span class="text-gray-500 block">Total Projects</span>
+                    </section>
+
+                </section>
+            </div>
+            <button class="mx-auto block w-40 h-12 my-10 border rounded shadow-gray-500 shadow" th:formaction="@{/logout}">Logout</button>
+        </form>
+    </main>
+</body>
+</html>

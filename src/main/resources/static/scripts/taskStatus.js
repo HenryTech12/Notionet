@@ -1,6 +1,6 @@
 
 let stompClient2 = null;
-let pName2 = document.querySelector('.pName');
+let pID = document.querySelector('.pID');
 const notifBox = document.getElementById('notif-box');
 const bellBtn = document.getElementById('bell-btn');
 const notifDot = document.getElementById('notif-dot');
@@ -15,19 +15,22 @@ function connect() {
         stompClient2.subscribe('/topics/finished', function(message) {
             const response = JSON.parse(message.body);
             console.log(response.message)
-            const field = document.createElement('span');
-            field.innerText = response.message;
-            field.classList.add('fields','border', 'w-full', 'h-auto', 'text-center');
-            notifBox.appendChild(field);
-            notifDot.classList.remove('hidden'); // Hide red dot on view
+            const listOfResponse = response.message;
+            listOfResponse.forEach((data) => {
+                const field = document.createElement('span');
+                field.innerText = data;
+                field.classList.add('fields','border', 'w-full', 'h-auto', 'text-center');
+                notifBox.appendChild(field);
 
+            })
+            notifDot.classList.remove('hidden'); // Hide red dot on view
         })
     })
 }
 connect()
 function notifyForStatus() {
     if(stompClient2 != null) {
-        const data2 = {"projectName":pName2.innerText};
+        const data2 = {"id":pID.innerText};
         stompClient2.send('/app/getLimit',{}, JSON.stringify(data2));
         console.log('status data sent')
     }

@@ -31,6 +31,6 @@ public class NotificationController {
     @MessageMapping("/getLimit")
     @SendTo("/topics/finished")
     public NotificationResponse checkExpiration(@RequestBody MyProject myProject) {
-        return myProjectService.updateTaskExpiration(myProject.getProjectName());
+        return myProjectService.updateTaskExpiration(myProject.getId());
     }
 }

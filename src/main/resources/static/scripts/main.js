@@ -68,7 +68,8 @@ for(let i = 0; i < cards.length; i++) {
 
 // UPDATE DATE
 let card_date = document.getElementById('card-date')
-const rawDate = "2025-06-29 08:58:35.925";
+const rawDate = card_date.innerText;
+console.log(card_date)
 const date = new Date(rawDate.replace(" ", "T"));
 
 const options = {
@@ -81,5 +82,5 @@ const options = {
 };
 
 const readable = date.toLocaleString("en-US", options);
-console.log(readable); // e.g. "June 29, 2025, 08:58:35 AM"
+console.log(readable);
 card_date.innerText = readable;

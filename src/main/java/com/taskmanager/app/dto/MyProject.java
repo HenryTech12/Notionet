@@ -9,8 +9,10 @@ import java.util.Date;
 public class MyProject {
 
 
+    private Long id;
     private String projectName;
     private Date createdOn;
     private String status;
     private MyTask task;
+    private byte[] imageBytes;
 }

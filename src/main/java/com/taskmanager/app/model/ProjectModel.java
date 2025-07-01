@@ -19,4 +19,6 @@ public class ProjectModel {
     private String status; // days project existed
     @OneToMany(fetch = FetchType.EAGER)
     private List<TaskModel> taskModelList;
+    @Lob
+    private byte[] imageBytes;
 }

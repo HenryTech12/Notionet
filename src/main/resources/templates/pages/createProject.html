@@ -14,16 +14,30 @@
 </head>
 <body>
     <main class="container mx-auto my-36">
-       <form th:object="${project}" method="post">
+       <form th:object="${project}" method="post" enctype="multipart/form-data">
             <header class="flex flex-col items-center">
                 <span class="font-bold" style="font-family: Source Code Pro">Create Your Project</span>
                 <span class="font-light" style="font-family: Work Sans">Enjoy your tasks</span>
             </header>
-            <section class="flex justify-center mt-5">
-                <input th:field="*{projectName}" type="text" style="font-family: Roboto" placeholder="Project Name" class="border pl-2">
-                <button type="submit" class="bg-purple-500 p-2 rounded font-bold" th:formaction="@{/app/project/create}">Create</button>
-            </section>
+           <section class="flex justify-center mt-5 gap-3">
+               <a onclick="openFile(event)">
+                   <section class="border rounded-2xl">
+                       <img src="../assets/uploads.png" width="40" height="40" alt="Upload Project Icon">
+                   </section>
+               </a>
+               <section class="flex">
+                   <input type="text" th:field="*{projectName}" placeholder="Project Name" class="border pl-2">
+                   <button type="submit" class="bg-purple-500 p-2 rounded font-bold" th:formaction="@{/app/project/create}">Create</button>
+               </section>
+           </section>
+           <input type="file" name="myfile" id="myfile" accept="image/*" hidden style="display: none;">
        </form>
+
     </main>
+    <script>
+        function openFile(event) {
+            document.getElementById('myfile').click();
+        }
+    </script>
 </body>
 </html>

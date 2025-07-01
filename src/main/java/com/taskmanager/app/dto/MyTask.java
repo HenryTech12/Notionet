@@ -9,6 +9,7 @@ import java.util.Date;
 @Data
 public class MyTask {
 
+    private Long id;
     private String title;
     private String startTime;
     private String endTime;

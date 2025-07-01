@@ -1,7 +1,6 @@
 package com.taskmanager.app.service;
 
 import com.taskmanager.app.dto.MyProject;
-import com.taskmanager.app.dto.MyTask;
 import com.taskmanager.app.mapper.ProjectMapper;
 import com.taskmanager.app.mapper.TaskMapper;
 import com.taskmanager.app.model.ProjectModel;
@@ -15,12 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -95,13 +90,13 @@ public class MyProjectService {
         }
     }
 
-    public NotificationResponse updateTaskExpiration(String projectName) {
+    public NotificationResponse updateTaskExpiration(Long projectId) {
         NotificationResponse notificationResponse = new NotificationResponse();
-        System.out.println(projectName);
+        System.out.println(projectId);
         ProjectModel projectModel
-                = projectRepository.findByProjectName(projectName).orElse(new ProjectModel());
+                = projectRepository.findById(projectId).orElse(new ProjectModel());
         List<TaskModel> taskModels = projectModel.getTaskModelList();
-
+        List<String> responses = new ArrayList<>();
         for (TaskModel data : taskModels) {
             LocalDate currentDate = LocalDate.now();
             //CONVERT STRING DATE TO LOCAL DATE
@@ -115,21 +110,28 @@ public class MyProjectService {
 
                 /* CHECK TIME AND SET NOTIFICATION MESSAGE*/
                 if (currentTime.equals(taskStartTime) || currentTime.isAfter(taskStartTime)) {
-                    notificationResponse.setMessage(
-                            "The Timer for Task : " + data.getTitle() + " has reached");
+                    responses.add("The Timer for Task : " + data.getTitle() + " has reached");
+                    if (currentTime.isAfter(taskEndTime)) {
+                        responses.add("The Task : " + data.getTitle() + " has ended.");
+                        data.setStatus(TaskStatus.COMPLETED.name());
+                        log.info("task "+data.getTitle()+" is completed");
 
+                    }
                 }
-                if (currentTime.isAfter(taskEndTime)) {
-                    notificationResponse.setMessage(
-                            "The Task : " + data.getTitle() + " has ended."
-                    );
-                    data.setStatus(TaskStatus.COMPLETED.name());
-                    taskRepository.save(data); //updated status
-                }
-
             }
+            else {
+                data.setStatus(TaskStatus.COMPLETED.name());
+            }
+            taskRepository.save(data); //updated status
         }
+        notificationResponse.setMessage(responses);
         return notificationResponse;
+    }
+
+    public MyProject getProject(String projectName) {
+        return projectMapper.
+                convertToDTO(projectRepository.
+                        findByProjectName(projectName).orElse(new ProjectModel()));
     }
 
     public void initProjectStatus(ProjectModel projectModel) {

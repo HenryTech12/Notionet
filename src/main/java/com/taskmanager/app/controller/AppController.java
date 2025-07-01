@@ -5,13 +5,22 @@ import com.taskmanager.app.dto.MyTask;
 import com.taskmanager.app.model.TaskModel;
 import com.taskmanager.app.service.MyProjectService;
 import com.taskmanager.app.service.MyTaskService;
+import com.taskmanager.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/app")
@@ -21,17 +30,35 @@ public class AppController {
     private MyProjectService myProjectService;
     @Autowired
     private MyTaskService myTaskService;
+    @Autowired
+    private UserService userService;
 
     //dashboard page
     @GetMapping("/dashboard")
-    public String getDashboardPage(Model model) {
+    public String getDashboardPage(Model model, OAuth2AuthenticationToken token) {
+        OAuth2User principal = token.getPrincipal();
+        if(!Objects.isNull(principal)) {
+            userService.addUser(userService.extractUserDetails(principal));
+        }
         List<MyProject> projectList = myProjectService.getAllProjects();
-        projectList.forEach(System.out::println);
         model.addAttribute("projects", projectList);
         if (!projectList.isEmpty())
             model.addAttribute("projectName",projectList.get(0).getProjectName());
         model.addAttribute("project", new MyProject());
         return "main";
+    }
+
+    @GetMapping("/project/{projectName}")
+    public MyProject getProjectViaName(@PathVariable String projectName) {
+        return myProjectService.getProject(projectName);
+    }
+
+    @GetMapping("/project/image/{id}")
+    public ResponseEntity<byte[]> processImage(@PathVariable Long id) {
+        byte[] img =
+                myProjectService.getProject(id).getImageBytes();
+        return ResponseEntity.ok().
+                contentType(MediaType.IMAGE_PNG).body(img);
     }
 
     //create Task page
@@ -59,6 +86,7 @@ public class AppController {
             model.addAttribute("projectName",
                     myTaskService.convertListOfModelsToDTOs(tasks).get(0).getProjectName());
         }
+        model.addAttribute("projectId",projectId);
         model.addAttribute("task", new MyTask());
         return "task";
     }
@@ -86,6 +114,7 @@ public class AppController {
     }
 
 
+
     @GetMapping("/task/viewEdit/{id}")
     public String editTask(@PathVariable Long id,Model model) {
         model.addAttribute("task", myTaskService.getTask(id));
@@ -102,7 +131,14 @@ public class AppController {
     }
 
     @PostMapping("/project/create")
-    public RedirectView createProject(@ModelAttribute MyProject project) {
+    public RedirectView createProject(@ModelAttribute MyProject project, MultipartFile myfile) {
+        if(!Objects.isNull(myfile)) {
+           try {
+               System.out.println(myfile.getBytes());
+               project.setImageBytes(myfile.getBytes());
+           }
+           catch(IOException ioException) {ioException.printStackTrace();}
+        }
         myProjectService.createProject(project);
         return new RedirectView("/app/dashboard");
     }
