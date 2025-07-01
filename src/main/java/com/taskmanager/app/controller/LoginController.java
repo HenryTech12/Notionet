@@ -1,6 +1,8 @@
 package com.taskmanager.app.controller;
 
 import com.taskmanager.app.dto.MyProject;
+import com.taskmanager.app.dto.MyTask;
+import com.taskmanager.app.dto.UserData;
 import com.taskmanager.app.service.MyProjectService;
 import com.taskmanager.app.service.MyTaskService;
 import com.taskmanager.app.service.UserService;
@@ -15,7 +17,6 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RequestMapping("/user")
 @Controller
@@ -36,18 +37,18 @@ public class LoginController {
     public String getProfile(OAuth2AuthenticationToken token, Model model) {
         OAuth2User auth2User = token.getPrincipal();
         if(!Objects.isNull(auth2User)) {
-            model.addAttribute("userData",
-                    userService.findByEmail(auth2User.getAttribute("email")));
+            UserData userData = userService.findByEmail(auth2User.getAttribute("email"));
+            model.addAttribute("userData", userData);
+            List<MyProject> projects = userData.getProjects();
+            model.addAttribute("projectSize", projects.size());
+            int result = 0;
+            for(MyProject project : projects) {
+                for(MyTask myTask : project.getTasks()) {
+                    result += 1;
+                }
+            }
+            model.addAttribute("taskSize",result);
         }
-        List<MyProject> myProjectList = myProjectService.getAllProjects();
-        model.addAttribute("projectSize",myProjectList.size());
-        AtomicInteger result = new AtomicInteger();
-        myProjectList.stream()
-                .map((data) -> {
-                    result.addAndGet(myTaskService.getTasks(data.getProjectName()).size());
-                    return data;
-                }).toList();
-        model.addAttribute("taskSize",result);
 
         return "profile";
     }

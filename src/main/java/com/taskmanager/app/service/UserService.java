@@ -33,7 +33,7 @@ public class UserService {
         String picture = oAuth2User.getAttribute("picture");
         LocalDate localDate = LocalDate.now();
         String joined = localDate.getMonth().name()+", "+localDate.getDayOfMonth()+" "+localDate.getYear();
-        return new UserData(email,name,picture,joined);
+        return new UserData(email,name,picture,joined,null);
     }
 
     public UserData findByEmail(String email) {

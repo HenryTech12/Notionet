@@ -1,155 +1,104 @@
 package com.taskmanager.app.service;
 
+
 import com.taskmanager.app.dto.MyProject;
 import com.taskmanager.app.mapper.ProjectMapper;
-import com.taskmanager.app.mapper.TaskMapper;
 import com.taskmanager.app.model.ProjectModel;
 import com.taskmanager.app.model.TaskModel;
+import com.taskmanager.app.model.UserModel;
 import com.taskmanager.app.notifications.NotificationResponse;
 import com.taskmanager.app.repository.ProjectRepository;
-import com.taskmanager.app.repository.TaskRepository;
-import com.taskmanager.app.status.TaskStatus;
+import com.taskmanager.app.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
 public class MyProjectService {
 
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private ProjectMapper projectMapper;
     @Autowired
     private ProjectRepository projectRepository;
-    @Autowired
-    private MyTaskService myTaskService;
-    @Autowired
-    private TaskMapper taskMapper;
-    @Autowired
-    private TaskRepository taskRepository;
 
-    public void createProject(MyProject myProject) {
-        myProject.setCreatedOn(new Date(System.currentTimeMillis()));
-        ProjectModel projectModel =
-                projectMapper.convertToModel(Objects.requireNonNull(myProject));
-        initProjectStatus(projectModel);
-        projectRepository.save(projectModel);
-        log.info("project successfully created");
+
+    public List<MyProject> getProjects(String email) {
+        UserModel userModel = userRepository.findByEmail(email).orElse(new UserModel());
+        if(!Objects.isNull(userModel.getProjects()))
+            return userModel.getProjects()
+                .stream().map(projectMapper::convertToDTO).toList();
+        else
+            return null;
     }
 
-    public MyProject getProject(Long id) {
-        return projectMapper.convertToDTO(projectRepository
-                .findById(id).orElse(new ProjectModel()));
-    }
-
-    public void deleteProject(Long id) {
-        projectRepository.deleteById(id);
-        log.info("project successfully removed from db.");
-    }
-
-    public void deleteProject(String productName) {
-        projectRepository.deleteByProjectName(productName);
-        log.info("project deleted successfully");
-    }
-    public List<MyProject> getAllProjects() {
-        List<ProjectModel> projectModels =
-                projectRepository.findAll();
-        return projectModels.stream().
-                map(data -> {
-                    MyProject myProject =  projectMapper.convertToDTO(data);
-                    if (!data.getTaskModelList().isEmpty()) {
-                        myProject.setTask(taskMapper.convertToDTO(data.getTaskModelList().get(0)));
-                    }
-                    return myProject;
-                }).toList();
-    }
-
-    public void updateProject(String projectName,MyProject data) {
-        ProjectModel projectModel =
-                projectRepository.findByProjectName(projectName).orElse(new ProjectModel());
-        ProjectModel newProjectModel = projectMapper.convertToModel(data);
-        newProjectModel.setId(projectModel.getId());
-        projectRepository.save(newProjectModel);
-
-        log.info("project details updated");
-    }
-
-    public void addTaskToProject(String projectName) {
-        System.out.println("PROJECT NAME: "+projectName);
-        ProjectModel projectModel =
-                projectRepository.findByProjectName(projectName).orElse(new ProjectModel());
-        List<TaskModel> taskModels = myTaskService.getTasks(projectName);
-        if(!taskModels.isEmpty()) {
-            projectModel.setTaskModelList(taskModels);
+    public void createProject(MyProject myProject, String email) {
+        if(!Objects.isNull(myProject)) {
+            myProject.setCreatedOn(LocalDate.now());
+            myProject.setStatus("Just Now...");
+            ProjectModel projectModel = projectMapper.convertToModel(myProject);
+            UserModel userModel = userRepository.findByEmail(email)
+                            .orElse(new UserModel());
+            List<ProjectModel> projectModels = new ArrayList<>();
+            projectModels.add(projectModel);
             projectRepository.save(projectModel);
-            log.info("added task to project");
+            userModel.setProjects(projectModels);
+            userRepository.save(userModel); // updates user data
+            log.info("project created....");
         }
     }
 
-    public NotificationResponse updateTaskExpiration(Long projectId) {
+
+
+    public MyProject getProject(Long projectId) {
+        ProjectModel projectModel =
+                projectRepository.findById(projectId)
+                        .orElse(new ProjectModel());
+        return projectMapper.convertToDTO(projectModel);
+    }
+
+    public void deleteByProject(Long projectId) {
+        projectRepository.deleteById(projectId);
+        log.info("project removed from db.");
+    }
+
+    public NotificationResponse checkForStatus(String projectName) {
         NotificationResponse notificationResponse = new NotificationResponse();
-        System.out.println(projectId);
-        ProjectModel projectModel
-                = projectRepository.findById(projectId).orElse(new ProjectModel());
-        List<TaskModel> taskModels = projectModel.getTaskModelList();
-        List<String> responses = new ArrayList<>();
-        for (TaskModel data : taskModels) {
-            LocalDate currentDate = LocalDate.now();
-            //CONVERT STRING DATE TO LOCAL DATE
-            LocalDate taskExpectedDate = LocalDate.parse(data.getScheduledDate());
-            System.out.println(taskExpectedDate);
+        ProjectModel projectModel = projectRepository.findByProjectName(projectName)
+                .orElse(new ProjectModel());
+        List<TaskModel> taskModels =  projectModel.getTasks();
+        for(TaskModel taskModel : taskModels) {
+           LocalDate currentDate = LocalDate.now();
+           LocalDate scheduledDate = LocalDate.parse(taskModel.getScheduledDate());
+            System.out.println("SCHEDULED DATE: "+scheduledDate);
 
-            if (currentDate.equals(taskExpectedDate)) {
-                LocalTime currentTime = LocalTime.now();
-                LocalTime taskStartTime = LocalTime.parse(data.getStartTime());
-                LocalTime taskEndTime = LocalTime.parse(data.getEndTime());
+           if(currentDate.isEqual(scheduledDate)) {
 
-                /* CHECK TIME AND SET NOTIFICATION MESSAGE*/
-                if (currentTime.equals(taskStartTime) || currentTime.isAfter(taskStartTime)) {
-                    responses.add("The Timer for Task : " + data.getTitle() + " has reached");
-                    if (currentTime.isAfter(taskEndTime)) {
-                        responses.add("The Task : " + data.getTitle() + " has ended.");
-                        data.setStatus(TaskStatus.COMPLETED.name());
-                        log.info("task "+data.getTitle()+" is completed");
+               LocalTime currentTime = LocalTime.now();
+               LocalTime startTime = LocalTime.parse(taskModel.getStartTime());
+               LocalTime endTime = LocalTime.parse(taskModel.getEndTime());
 
-                    }
-                }
-            }
-            else {
-                data.setStatus(TaskStatus.COMPLETED.name());
-            }
-            taskRepository.save(data); //updated status
+               if(currentTime.isAfter(startTime) || currentTime.equals(startTime)) {
+                   notificationResponse.setMessage(Arrays.asList("The Task: "+taskModel.getTitle()+" has started"));
+               }
+               if(currentTime.isAfter(endTime) || currentTime.equals(endTime)) {
+                   notificationResponse.setMessage(Arrays.asList("The Task: "+taskModel.getTitle()+" has ended."));
+               }
+           }
         }
-        notificationResponse.setMessage(responses);
         return notificationResponse;
     }
 
-    public MyProject getProject(String projectName) {
-        return projectMapper.
-                convertToDTO(projectRepository.
-                        findByProjectName(projectName).orElse(new ProjectModel()));
-    }
-
-    public void initProjectStatus(ProjectModel projectModel) {
-
-        Date createdDate = projectModel.getCreatedOn();
-        Date currentDate = new Date(System.currentTimeMillis());
-
-        int result = currentDate.compareTo(createdDate);
-        if(result == 0) {
-            projectModel.setStatus("Recently");
-        }
-        else {
-            if(result == 1) {
-                projectModel.setStatus(result+" day ago");
-            }
-            else {
-                projectModel.setStatus(result+" days ago");
-            }
-        }
+    public void deleteProjectByName(String projectName) {
+        projectRepository.deleteByProjectName(projectName);
     }
 }

@@ -1,5 +1,11 @@
 
 let stompClient = null;
+let pID = document.querySelector('.pID');
+const notifBox = document.getElementById('notif-box');
+const bellBtn = document.getElementById('bell-btn');
+const notifDot = document.getElementById('notif-dot');
+
+
 function connect() {
     let socket = SockJS('/ws');
     stompClient = Stomp.over(socket)
@@ -8,7 +14,18 @@ function connect() {
         console.log('Connected '+frame);
         stompClient.subscribe('/topics/uproject',function(message) {
                 console.log(message.body)
-        })
+                const response = JSON.parse(message.body);
+                console.log(response.message)
+                const listOfResponse = response.message;
+                listOfResponse.forEach((data) => {
+                       const field = document.createElement('span');
+                       field.innerText = data;
+                       field.classList.add('fields','border', 'w-full', 'h-auto', 'text-center');
+                       notifBox.appendChild(field);
+
+                });
+                notifDot.classList.remove('hidden'); // Hide red dot on view
+            })
     })
 }
 
@@ -34,3 +51,11 @@ let interValID = setInterval(() => {
         clearInterval(interValID);
     }
 },1000)
+
+
+bellBtn.addEventListener('click', (event) => {
+  event.preventDefault();
+  notifBox.classList.toggle('hidden');
+  notifDot.classList.add('hidden'); // Hide red dot on view
+
+});

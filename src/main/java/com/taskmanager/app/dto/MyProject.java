@@ -3,7 +3,9 @@ package com.taskmanager.app.dto;
 import com.taskmanager.app.model.TaskModel;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class MyProject {
@@ -11,8 +13,9 @@ public class MyProject {
 
     private Long id;
     private String projectName;
-    private Date createdOn;
+    private LocalDate createdOn;
     private String status;
-    private MyTask task;
     private byte[] imageBytes;
+    private List<MyTask> tasks;
+
 }

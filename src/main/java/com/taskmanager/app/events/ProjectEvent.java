@@ -29,7 +29,7 @@ public class ProjectEvent {
             System.out.println("fetching...");
         } else {
             projectModels.forEach((data) -> {
-                myProjectService.initProjectStatus(data);
+                //myProjectService.initProjectStatus(data);
                 projectRepository.save(data);
                 log.info("updated project status");
             });

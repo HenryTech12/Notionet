@@ -12,7 +12,7 @@ import java.util.Date;
 public class TaskModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String title;
     private String endTime;

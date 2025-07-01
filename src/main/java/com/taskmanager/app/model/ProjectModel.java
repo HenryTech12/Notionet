@@ -3,6 +3,7 @@ package com.taskmanager.app.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -11,14 +12,15 @@ import java.util.List;
 public class ProjectModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(unique = true)
     private String projectName;
-    private Date createdOn;
+    private LocalDate createdOn;
     private String status; // days project existed
     @OneToMany(fetch = FetchType.EAGER)
-    private List<TaskModel> taskModelList;
+    private List<TaskModel> tasks;
     @Lob
     private byte[] imageBytes;
+
 }

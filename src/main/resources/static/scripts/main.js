@@ -62,25 +62,28 @@ for(let i = 0; i < cards.length; i++) {
          let projectId = document.querySelectorAll('.projectId')[i];
          event.preventDefault();
          console.log('clicked!!')
+         alert('Task Fetched....')
          window.location.href=`http://localhost:8080/app/task/view/${projectId.innerText}`
     })
 }
 
 // UPDATE DATE
 let card_date = document.getElementById('card-date')
-const rawDate = card_date.innerText;
-console.log(card_date)
-const date = new Date(rawDate.replace(" ", "T"));
+if(card_date != null) {
+    const rawDate = card_date.innerText;
+    console.log(card_date)
+    const date = new Date(rawDate.replace(" ", "T"));
 
-const options = {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-};
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    };
 
-const readable = date.toLocaleString("en-US", options);
-console.log(readable);
-card_date.innerText = readable;
+    const readable = date.toLocaleString("en-US", options);
+    console.log(readable);
+    card_date.innerText = readable;
+}
