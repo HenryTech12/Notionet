@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
@@ -37,6 +38,8 @@ public class UserService {
     }
 
     public UserData findByEmail(String email) {
-        return userMapper.convertToDTO(userRepository.findByEmail(email).orElse(new UserModel()));
+        UserModel userModel = userRepository.findByEmail(email).orElse(new UserModel());
+        userModel.setProjects(new ArrayList<>(userModel.getProjects()));
+        return userMapper.convertToDTO(userModel);
     }
 }

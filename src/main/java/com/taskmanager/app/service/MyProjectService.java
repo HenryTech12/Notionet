@@ -9,7 +9,9 @@ import com.taskmanager.app.model.TaskModel;
 import com.taskmanager.app.model.UserModel;
 import com.taskmanager.app.notifications.NotificationResponse;
 import com.taskmanager.app.repository.ProjectRepository;
+import com.taskmanager.app.repository.TaskRepository;
 import com.taskmanager.app.repository.UserRepository;
+import com.taskmanager.app.status.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +27,19 @@ import java.util.Objects;
 @Slf4j
 public class MyProjectService {
 
+    NotificationResponse notificationResponse = new NotificationResponse();
+    List<String> messages = new ArrayList<>();
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private ProjectMapper projectMapper;
     @Autowired
     private ProjectRepository projectRepository;
-
+    @Autowired
+    private MailService mailService;
+    @Autowired
+    private TaskRepository taskRepository;
 
     public List<MyProject> getProjects(String email) {
         UserModel userModel = userRepository.findByEmail(email).orElse(new UserModel());
@@ -49,8 +57,14 @@ public class MyProjectService {
             ProjectModel projectModel = projectMapper.convertToModel(myProject);
             UserModel userModel = userRepository.findByEmail(email)
                             .orElse(new UserModel());
-            List<ProjectModel> projectModels = new ArrayList<>();
-            projectModels.add(projectModel);
+            List<ProjectModel> projectModels = userModel.getProjects();
+            if(!projectModels.isEmpty()) {
+                projectModels.add(projectModel);
+            }
+            else {
+                projectModels = new ArrayList<>();
+                projectModels.add(projectModel);
+            }
             projectRepository.save(projectModel);
             userModel.setProjects(projectModels);
             userRepository.save(userModel); // updates user data
@@ -73,7 +87,6 @@ public class MyProjectService {
     }
 
     public NotificationResponse checkForStatus(String projectName, UserData userData) {
-        NotificationResponse notificationResponse = new NotificationResponse();
         MailService.MailInfo mailInfo = new MailService.MailInfo();
         mailInfo.setTo(userData.getEmail());
         mailInfo.setSubject("Notionet - Task Update (Notification)");
@@ -90,9 +103,9 @@ public class MyProjectService {
                LocalTime currentTime = LocalTime.now();
                LocalTime startTime = LocalTime.parse(taskModel.getStartTime());
                LocalTime endTime = LocalTime.parse(taskModel.getEndTime());
-
-               if(currentTime.isAfter(startTime) || currentTime.equals(startTime)) {
-                   mailInfo.setMessage(String.format("""
+                if(taskModel.getStatus().equals(TaskStatus.ONGOING.name())) {
+                    if(currentTime.isAfter(startTime) || currentTime.equals(startTime)) {
+                        mailInfo.setMessage(String.format("""
                            Hey "%s",
                            
                            Just a quick update — your task "%s" has officially started!
@@ -103,17 +116,23 @@ public class MyProjectService {
                            The Notionet Team
                            
                            """,userData.getName(),taskModel.getTitle()));
-                   notificationResponse.setMessage(Arrays.asList("The Task: "+taskModel.getTitle()+" has started"));
-               }
-               if(currentTime.isAfter(endTime) || currentTime.equals(endTime)) {
-                   mailInfo.setMessage(String.format(
-                           "Hi %s,\n\nYour task \"%s\" has ended successfully.\n\nYou can review the results or mark it as complete in your dashboard.\n\nBest regards,\nThe Notionet Team",
-                           userData.getName(), taskModel.getTitle()
-                   ));
-                   notificationResponse.setMessage(Arrays.asList("The Task: "+taskModel.getTitle()+" has ended."));
-               }
+                        mailService.sendMessage(mailInfo);
+                        messages.add("The Task: "+taskModel.getTitle()+" has started");
+                    }
+                    if(currentTime.isAfter(endTime) || currentTime.equals(endTime)) {
+                        mailInfo.setMessage(String.format(
+                                "Hi %s,\n\nYour task \"%s\" has ended successfully.\n\nYou can review the results or mark it as complete in your dashboard.\n\nBest regards,\nThe Notionet Team",
+                                userData.getName(), taskModel.getTitle()
+                        ));
+                        mailService.sendMessage(mailInfo);
+                        messages.add("The Task: "+taskModel.getTitle()+" has ended.");
+                        taskModel.setStatus(TaskStatus.COMPLETED.name());
+                        taskRepository.save(taskModel);
+                    }
+                }
            }
         }
+        notificationResponse.setMessage(messages);
         return notificationResponse;
     }
 

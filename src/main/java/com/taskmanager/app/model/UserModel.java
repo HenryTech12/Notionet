@@ -21,6 +21,6 @@ public class UserModel {
     private String name;
     private String picture;
     private String joined;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<ProjectModel> projects;
 }
