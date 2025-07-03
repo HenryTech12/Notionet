@@ -11,5 +11,6 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<TaskModel,Long> {
 
+    List<TaskModel> findByProjectNameAndStatus(String projectName, String status);
 
 }

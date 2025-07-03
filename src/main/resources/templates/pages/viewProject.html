@@ -1,0 +1,43 @@
+<html lang="en"
+    xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+</head>
+<body>
+    <main class="container mx-auto p-3">
+        <form>
+            <header>
+                <button th:formaction="@{/app/dashboard}" class="w-56 rounded w-max-56 h-12 h-max-30 shadow shadow-gray-600">
+                    <span>Back To Dashboard</span>
+                </button>
+            </header>
+
+            <div class="content">
+                <input type="text" class="h-10 rounded-2xl w-80 mx-auto block my-4 px-2 border" placeholder="Search Project">
+                <div class="card w-fit grid grid-cols-3 items-center justify-center gap-4 my-4">
+                    <button th:formaction="@{/app/task/view/{projectId}(projectId=${data.id})}" th:each="data: ${projects}" class="mycard transparent text-black flex flex-col gap-1.5 px-4 py-4 rounded border border-purple-500  transform hover:text-white hover:scale-105 hover:bg-purple-700 transition duration-300 ease-in-out cursor-pointer">
+                        <img class="w-15 h-auto block mx-auto" th:src="@{/app/project/image/{id}(id=${data.id})}">
+                        <span class="pName" th:text="${data.projectName}">Project Name</span>
+                        <span>Total Tasks: <span th:text="${data.tasks.size()}"></span></span>
+                        <section class="flex flex-col border mx-3 my-2 border p-3 rounded border-white">
+                            <span>Task Completed: <span class="ct"></span> </span>
+                            <span>Task Ongoing: <span class="ot"></span> </span>
+                        </section>
+                        <span>Created: <span th:text="${data.createdOn}" class="text-red-500"></span></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+<script th:src="@{/scripts/taskStatus.js}"></script>
+</body>
+</html>

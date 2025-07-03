@@ -27,8 +27,6 @@ import java.util.Objects;
 @Slf4j
 public class MyProjectService {
 
-    NotificationResponse notificationResponse = new NotificationResponse();
-    List<String> messages = new ArrayList<>();
 
     @Autowired
     private UserRepository userRepository;
@@ -43,9 +41,9 @@ public class MyProjectService {
 
     public List<MyProject> getProjects(String email) {
         UserModel userModel = userRepository.findByEmail(email).orElse(new UserModel());
-        if(!Objects.isNull(userModel.getProjects()))
+        if(userModel.getProjects() != null)
             return userModel.getProjects()
-                .stream().map(projectMapper::convertToDTO).toList();
+                    .stream().map(projectMapper::convertToDTO).toList();
         else
             return null;
     }
@@ -89,6 +87,9 @@ public class MyProjectService {
     public NotificationResponse checkForStatus(String projectName, UserData userData) {
         MailService.MailInfo mailInfo = new MailService.MailInfo();
         mailInfo.setTo(userData.getEmail());
+        NotificationResponse notificationResponse = new NotificationResponse();
+        List<String> messages = new ArrayList<>();
+
         mailInfo.setSubject("Notionet - Task Update (Notification)");
         ProjectModel projectModel = projectRepository.findByProjectName(projectName)
                 .orElse(new ProjectModel());
@@ -103,7 +104,7 @@ public class MyProjectService {
                LocalTime currentTime = LocalTime.now();
                LocalTime startTime = LocalTime.parse(taskModel.getStartTime());
                LocalTime endTime = LocalTime.parse(taskModel.getEndTime());
-                if(taskModel.getStatus().equals(TaskStatus.ONGOING.name())) {
+                if(taskModel.getStatus() == TaskStatus.ONGOING.name()) {
                     if(currentTime.isAfter(startTime) || currentTime.equals(startTime)) {
                         mailInfo.setMessage(String.format("""
                            Hey "%s",
@@ -130,6 +131,12 @@ public class MyProjectService {
                         taskRepository.save(taskModel);
                     }
                 }
+                else {
+                    if(currentTime.isBefore(startTime) && currentTime.isBefore(endTime)) {
+                        taskModel.setStatus(TaskStatus.ONGOING.name());
+                        taskRepository.save(taskModel);
+                    }
+                }
            }
         }
         notificationResponse.setMessage(messages);
@@ -138,5 +145,12 @@ public class MyProjectService {
 
     public void deleteProjectByName(String projectName) {
         projectRepository.deleteByProjectName(projectName);
+    }
+
+    public MyProject findProjectUsingName(String projectName) {
+        return projectMapper.convertToDTO(
+                projectRepository.findByProjectName(projectName)
+                        .orElse(new ProjectModel())
+        );
     }
 }

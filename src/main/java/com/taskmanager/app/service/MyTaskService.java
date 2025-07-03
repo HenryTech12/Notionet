@@ -1,6 +1,7 @@
 package com.taskmanager.app.service;
 
 
+import com.taskmanager.app.dto.MyProject;
 import com.taskmanager.app.dto.MyTask;
 import com.taskmanager.app.mapper.TaskMapper;
 import com.taskmanager.app.model.ProjectModel;
@@ -12,6 +13,7 @@ import com.taskmanager.app.repository.UserRepository;
 import com.taskmanager.app.status.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,6 +36,8 @@ public class MyTaskService {
     private TaskMapper taskMapper;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MyProjectService myProjectService;
     public void createTask(MyTask myTask, String email) {
         if(!Objects.isNull(myTask)) {
             myTask.setStatus(TaskStatus.ONGOING.name());
@@ -102,4 +106,18 @@ public class MyTaskService {
         );
     }
 
+    public MyProject updateTask(Long taskID, MyTask myTask) {
+        TaskModel taskModel = taskRepository.findById(taskID).orElse(new TaskModel());
+        TaskModel newTaskModel = taskMapper.convertToModel(myTask);
+        newTaskModel.setId(taskModel.getId());
+        taskRepository.save(newTaskModel);
+
+        return myProjectService.findProjectUsingName(myTask.getProjectName());
+    }
+
+    public List<MyTask> getTaskViaProjectNameAndStatus(String projectName, String status) {
+        return taskRepository.findByProjectNameAndStatus(projectName,status)
+                .stream().map(taskMapper::convertToDTO)
+                .toList();
+    }
 }

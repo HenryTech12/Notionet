@@ -7,6 +7,8 @@ import com.taskmanager.app.notifications.NotificationResponse;
 import com.taskmanager.app.service.MyProjectService;
 import com.taskmanager.app.service.MyTaskService;
 import com.taskmanager.app.service.UserService;
+import com.taskmanager.app.status.TaskStatus;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -38,15 +41,21 @@ public class NotificationController {
         return myProjectService.checkForStatus(myProject.getProjectName(), userData);
     }
 
-    @MessageMapping("/getLimit")
-    @SendTo("/topics/finished")
-    public NotificationResponse checkExpiration(@RequestBody MyProject myProject, OAuth2AuthenticationToken token) {
-        UserData userData = null;
-        if(!Objects.isNull(token)) {
-            userData = userService.findByEmail(token.getPrincipal().getAttribute("email"));
-        }
-        return null;
-        //return myProjectService.updateTaskExpiration(myProject.getId(),Objects.requireNonNull(userData));
+    @MessageMapping("/getStatus")
+    @SendTo("/topics/len")
+    public MyResponse getStatus(@RequestBody MyProject myProject) {
+        System.out.println(myProject.getProjectName());
+        List<MyTask> otList = myTaskService.getTaskViaProjectNameAndStatus(myProject.getProjectName(), TaskStatus.ONGOING.name());
+        List<MyTask> ctList = myTaskService.getTaskViaProjectNameAndStatus(myProject.getProjectName(), TaskStatus.COMPLETED.name());
+         MyResponse myResponse = new MyResponse();
+         myResponse.setCT(ctList.size());
+         myResponse.setOT(otList.size());
+         return  myResponse;
     }
 
+    @Data
+    public static class MyResponse {
+        private int oT;
+        private int cT;
+    }
 }

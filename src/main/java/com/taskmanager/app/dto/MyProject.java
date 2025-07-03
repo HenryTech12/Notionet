@@ -16,6 +16,7 @@ public class MyProject {
     private LocalDate createdOn;
     private String status;
     private byte[] imageBytes;
+    private String contentType;
     private List<MyTask> tasks;
 
 }

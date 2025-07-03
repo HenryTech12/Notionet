@@ -1,53 +1,40 @@
 
-let stompClient2 = null;
-let pID = document.querySelector('.pID');
-const notifBox = document.getElementById('notif-box');
-const bellBtn = document.getElementById('bell-btn');
-const notifDot = document.getElementById('notif-dot');
-
-
+let stompClient = null;
+let pName = document.querySelectorAll('.pName');
+let oT = document.querySelectorAll('.ot');
+let cT = document.querySelectorAll('.ct');
+let iter = 0;
 function connect() {
-    let socket2 = SockJS("/ws");
-    stompClient2 = Stomp.over(socket2)
+    let socket = SockJS("/ws");
+    stompClient = Stomp.over(socket)
 
-    stompClient2.connect({}, function(frame) {
+    stompClient.connect({}, function(frame) {
         console.log('Client Connected '+frame)
-        stompClient2.subscribe('/topics/finished', function(message) {
+        stompClient.subscribe('/topics/len', function(message) {
             const response = JSON.parse(message.body);
-            console.log(response.message)
-            const listOfResponse = response.message;
-            listOfResponse.forEach((data) => {
-                const field = document.createElement('span');
-                field.innerText = data;
-                field.classList.add('fields','border', 'w-full', 'h-auto', 'text-center');
-                notifBox.appendChild(field);
-
-            })
-            notifDot.classList.remove('hidden'); // Hide red dot on view
+            oT[iter].innerText = response.ot;
+            cT[iter].innerText = response.ct;
+            console.log(response)
+            iter++;
         })
     })
 }
 connect()
 function notifyForStatus() {
-    if(stompClient2 != null) {
-        const data2 = {"id":pID.innerText};
-        stompClient2.send('/app/getLimit',{}, JSON.stringify(data2));
+    if(stompClient != null) {
+        pName.forEach((mydata) => {
+            const data = {"projectName":mydata.innerText};
+            stompClient.send('/app/getStatus',{}, JSON.stringify(data));
+        });
         console.log('status data sent')
     }
 }
 
-let interValID2 = setInterval(() => {
-    if(stompClient2.connected) {
+let interValID = setInterval(() => {
+    if(stompClient.connected) {
         console.log('hello')
         notifyForStatus()
-        clearInterval(interValID2);
+        clearInterval(interValID);
     }
 },1000)
 
-
-bellBtn.addEventListener('click', (event) => {
-  event.preventDefault();
-  notifBox.classList.toggle('hidden');
-  notifDot.classList.add('hidden'); // Hide red dot on view
-
-});
